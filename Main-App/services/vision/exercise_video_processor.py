@@ -22,19 +22,51 @@ class VideoProcessorClass(VideoProcessorBase):
         self._latest_metrics = None
         self._exercise_type = "Squats"
 
-        model_path = os.path.join(os.getcwd(), "ml_models", "pose_landmarker_full.task")
+
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        model_path = os.path.abspath(
+        os.path.join(
+        current_dir,
+        "..",
+        "..",
+        "ml_models",
+        "pose_landmarker_full.task"
+        )
+    )
+        print("Current Dir:", current_dir)
+        print("Model Path:", model_path)
+        print("Exists:", os.path.exists(model_path))
         base_option = python.BaseOptions(model_asset_path=model_path)
 
         options = vision.PoseLandmarkerOptions(
-            base_options=base_option,
-            running_mode=vision.RunningMode.VIDEO,
-            min_pose_detection_confidence=0.7,
-            min_pose_presence_confidence=0.7,
-            min_tracking_confidence=0.7,
-            output_segmentation_masks=False
-        )
+    base_options=base_option,
+    running_mode=vision.RunningMode.VIDEO,
+    min_pose_detection_confidence=0.7,
+    min_pose_presence_confidence=0.7,
+    min_tracking_confidence=0.7,
+    output_segmentation_masks=False
+)
+        try:
+            self._landmarker = vision.PoseLandmarker.create_from_options(options)
+        except Exception as e:
+            print("LANDMARKER ERROR:", str(e))
+            raise
 
-        self._landmarker = vision.PoseLandmarker.create_from_options(options)
+
+        # model_path = os.path.join(os.getcwd(), "ml_models", "pose_landmarker_full.task")
+        # base_option = python.BaseOptions(model_asset_path=model_path)
+
+        # options = vision.PoseLandmarkerOptions(
+        #     base_options=base_option,
+        #     running_mode=vision.RunningMode.VIDEO,
+        #     min_pose_detection_confidence=0.7,
+        #     min_pose_presence_confidence=0.7,
+        #     min_tracking_confidence=0.7,
+        #     output_segmentation_masks=False
+        # )
+
+        # self._landmarker = vision.PoseLandmarker.create_from_options(options)
+       
 
         self._detectors = {
             "Squats": SquatDetector(),
